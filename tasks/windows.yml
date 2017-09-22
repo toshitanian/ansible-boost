@@ -1,0 +1,40 @@
+- name: Include vars required for package installations
+  include_vars:
+    file: "windows.yml"
+
+# TODO
+# check if vcbuildtools is installed?
+# if not, install via chocolatey and add to path
+# - name: Install boost dependencies
+
+- name: Create work directory
+  file: path={{ boost_work_dir }} state=directory
+
+- name: Create install directory
+  file: path={{ boost_install_dir }} state=directory
+
+- name: Get boost source
+  win_get_url:
+    url: http://downloads.sourceforge.net/project/boost/boost/{{ boost_version }}/{{ boost_zip_name }}
+    dest: "{{ boost_work_dir }}/{{ boost_zip_name }}"
+
+- name: Extract boost source (win_unzip)
+  win_unzip:
+    src: "{{ boost_work_dir }}/{{ boost_zip_name }}"
+    dest:  "{{ boost_install_dir }}"
+    creates: "{{ boost_install_dir }}"
+    delete_archive: yes
+  when: ansible_powershell_version < 5
+
+- name: Extract boost source (powershell)
+  win_shell: "Expand-Archive {{ boost_work_dir }}\\{{ boost_zip_name }} -DestinationPath {{ boost_install_dir }}"
+  when: ansible_powershell_version >= 5
+
+- name: Bootstrap
+  win_shell: "cmd /c {{ boost_install_dir }}/{{ boost_build_dir }}/bootstrap.bat"
+
+- name: Install boost
+  win_shell: "cmd /c {{ boost_install_dir }}/{{ boost_build_dir }}/.\\b2"
+
+- name: Cleanup
+    win_file: path="{{ boost_work_dir }}" state=absent

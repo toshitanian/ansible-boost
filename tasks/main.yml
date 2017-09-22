@@ -3,3 +3,5 @@
 - include: "linux.yml"
   when: ansible_os_family == "Debian" | "RedHat"
 
+- include: "windows.yml"
+  when: ansible_os_family == "Windows"
