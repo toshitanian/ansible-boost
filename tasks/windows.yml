@@ -31,10 +31,14 @@
   when: ansible_powershell_version >= 5
 
 - name: Bootstrap
-  win_shell: "cmd /c {{ boost_install_dir }}/{{ boost_build_dir }}/bootstrap.bat"
+  win_command: cmd.exe /c bootstrap.bat
+  args: 
+    chdir: "{{ boost_install_dir }}/{{ boost_build_dir }}"
 
 - name: Install boost
-  win_shell: "cmd /c {{ boost_install_dir }}/{{ boost_build_dir }}/.\\b2"
+  win_command: cmd.exe /c .\\b2
+  args: 
+    chdir: "{{ boost_install_dir }}/{{ boost_build_dir }}"
 
 - name: Cleanup
     win_file: path="{{ boost_work_dir }}" state=absent
