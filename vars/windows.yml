@@ -1,4 +1,5 @@
 ---
 boost_work_dir: "C:/tmp/boost"
-boost_install_dir: "C:/boost"
-boost_zip_name: '{{ boost_build_dir }}.zip'
+boost_install_dir: "C:/boost/{{ boost_file_name }}"
+boost_file_name_exe: "{{ boost_file_name }}-msvc-14.0-64.exe"
+

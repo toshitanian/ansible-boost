@@ -3,9 +3,11 @@
     file: "windows.yml"
 
 # TODO
-# check if vcbuildtools is installed?
-# if not, install via chocolatey and add to path
-# - name: Install boost dependencies
+# - name: Install or check if boost dependencies are installed
+# All dependencies can be installed via chocolatey.
+# Dependencies being:
+# - vcbuildtools
+# - python
 
 - name: Create work directory
   file: path={{ boost_work_dir }} state=directory
@@ -15,30 +17,27 @@
 
 - name: Get boost source
   win_get_url:
-    url: http://downloads.sourceforge.net/project/boost/boost/{{ boost_version }}/{{ boost_zip_name }}
-    dest: "{{ boost_work_dir }}/{{ boost_zip_name }}"
-
-- name: Extract boost source (win_unzip)
-  win_unzip:
-    src: "{{ boost_work_dir }}/{{ boost_zip_name }}"
-    dest:  "{{ boost_install_dir }}"
-    creates: "{{ boost_install_dir }}"
-    delete_archive: yes
-  when: ansible_powershell_version < 5
-
-- name: Extract boost source (powershell)
-  win_shell: "Expand-Archive {{ boost_work_dir }}\\{{ boost_zip_name }} -DestinationPath {{ boost_install_dir }}"
-  when: ansible_powershell_version >= 5
-
-- name: Bootstrap
-  win_command: cmd.exe /c bootstrap.bat
-  args: 
-    chdir: "{{ boost_install_dir }}/{{ boost_build_dir }}"
+    url: http://downloads.sourceforge.net/project/boost/boost-binaries/{{ boost_version }}/{{ boost_file_name_exe }}
+    dest: "{{ boost_work_dir }}/{{ boost_file_name_exe }}"
 
 - name: Install boost
-  win_command: cmd.exe /c .\\b2
-  args: 
-    chdir: "{{ boost_install_dir }}/{{ boost_build_dir }}"
+  win_shell: "cmd.exe /c {{ boost_file_name_exe }} /DIR='{{ boost_install_dir }}' /SILENT /NOCANCEL"
+  args:
+    chdir: "{{ boost_work_dir }}"
+
+- name: Add boost root to system environment
+  win_environment:
+    name: BOOST_ROOT
+    value: "{{ boost_install_dir }}"
+    level: machine
+    state: present
+
+- name: Add boost library directory to system environment
+  win_environment:
+    name: BOOST_LIBRARYDIR
+    value: "{{ boost_install_dir }}/libs"
+    level: machine
+    state: present
 
 - name: Cleanup
     win_file: path="{{ boost_work_dir }}" state=absent
