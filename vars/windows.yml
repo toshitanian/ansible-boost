@@ -1,5 +1,6 @@
 ---
 boost_work_dir: "C:/tmp/boost"
+boost_file_name: 'boost_{{ boost_version.replace(".", "_") }}-msvc-14.0-64'
 boost_install_dir: "C:/boost/{{ boost_file_name }}"
 boost_file_name_exe: "{{ boost_file_name }}-msvc-14.0-64.exe"
 
