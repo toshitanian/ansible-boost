@@ -1,0 +1,43 @@
+- name: Include vars required for package installations
+  include_vars:
+    file: "windows.yml"
+
+# TODO
+# - name: Install or check if boost dependencies are installed
+# All dependencies can be installed via chocolatey.
+# Dependencies being:
+# - vcbuildtools
+# - python
+
+- name: Create work directory
+  file: path={{ boost_work_dir }} state=directory
+
+- name: Create install directory
+  file: path={{ boost_install_dir }} state=directory
+
+- name: Get boost source
+  win_get_url:
+    url: http://downloads.sourceforge.net/project/boost/boost-binaries/{{ boost_version }}/{{ boost_file_name_exe }}
+    dest: "{{ boost_work_dir }}/{{ boost_file_name_exe }}"
+
+- name: Install boost
+  win_shell: "cmd.exe /c {{ boost_file_name_exe }} /DIR='{{ boost_install_dir }}' /SILENT /NOCANCEL"
+  args:
+    chdir: "{{ boost_work_dir }}"
+
+- name: Add boost root to system environment
+  win_environment:
+    name: BOOST_ROOT
+    value: "{{ boost_install_dir }}"
+    level: machine
+    state: present
+
+- name: Add boost library directory to system environment
+  win_environment:
+    name: BOOST_LIBRARYDIR
+    value: "{{ boost_install_dir }}/libs"
+    level: machine
+    state: present
+
+- name: Cleanup
+  win_file: path="{{ boost_work_dir }}" state=absent
