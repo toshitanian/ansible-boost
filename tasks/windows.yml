@@ -40,4 +40,4 @@
     state: present
 
 - name: Cleanup
-    win_file: path="{{ boost_work_dir }}" state=absent
+  win_file: path="{{ boost_work_dir }}" state=absent
